@@ -99,7 +99,16 @@
     wget
     git
     kitty
+    htop
+    neofetch
+    iperf3
+    uv
+    python312
   ];
+
+  environment.variables = {
+    UV_PYTHON_DOWNLOADS = "never"; # Disable automatic Python downloads in uv bc this is unsupported with nix (https://nixos.wiki/wiki/Python#uv)
+  };
 
   environment.etc = {
     # 1Password Browser plugin
