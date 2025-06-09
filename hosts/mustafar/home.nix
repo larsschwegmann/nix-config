@@ -16,6 +16,8 @@
   home.stateVersion = "25.05"; # Please read the comment before changing.
 
 
+  nixpkgs.config.allowUnfree = true;
+
   programs.git = {
     enable = true;
     userEmail = "schwegmannlars@gmail.com";
@@ -39,6 +41,19 @@
       Host *
           IdentityAgent ~/.1password/agent.sock
     '';
+  };
+
+  programs.vscode = {
+    enable = true;
+
+    profiles.default.extensions = with pkgs.vscode-extensions; [
+      github.copilot
+      github.copilot-chat
+      jnoortheen.nix-ide
+      eamodio.gitlens
+      pkief.material-icon-theme
+      dracula-theme.theme-dracula
+    ];
   };
 
   # The home.packages option allows you to install Nix packages into your
