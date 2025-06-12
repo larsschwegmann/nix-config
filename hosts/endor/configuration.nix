@@ -73,6 +73,10 @@
     packages = with pkgs; [
       tree
     ];
+    openssh.authorizedKeys.keys = [
+      # Add your public SSH key here, e.g.:
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore"
+    ];
   };
 
   home-manager = {
