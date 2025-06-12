@@ -8,7 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./disko-config.nix
+      ./disko.nix
       inputs.home-manager.nixosModules.default
     ];
 
@@ -75,9 +75,22 @@
     ];
   };
 
+  home-manager = {
+    extraSpecialArgs = {inherit inputs;};
+
+    users = {
+      "lars" = import ./home.nix;
+    };
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   programs.firefox.enable = true;
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "lars" ];
+  };
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
@@ -97,7 +110,15 @@
     UV_PYTHON_DOWNLOADS = "never"; # Disable automatic Python downloads in uv bc this is unsupported with nix (https://nixos.wiki/wiki/Python#uv)
   };
 
-  
+  environment.etc = {
+    # 1Password Browser plugin
+    "1Password/custom_allowed_browsers" = {
+      text = ''
+        firefox
+      '';
+      mode = "0755";
+    };
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -110,13 +131,21 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings = {
+      X11Forwarding = true;
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+    };
+    openFirewall = true;
+  }
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = false;
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
