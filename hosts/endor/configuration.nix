@@ -143,7 +143,7 @@
       PasswordAuthentication = false;
     };
     openFirewall = true;
-  }
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
