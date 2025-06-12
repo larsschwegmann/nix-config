@@ -12,12 +12,25 @@
     };
   };
   outputs = inputs@{ self, nixpkgs, ... }: {
-    # NOTE: 'nixos' is the default hostname set by the installer
+    # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
     nixosConfigurations.mustafar = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {inherit inputs;};
       modules = [
         ./hosts/mustafar/configuration.nix
+        ./modules/1password/1password.nix
+        ./modules/home-manager/home-manager.nix
+        inputs.disko.nixosModules.disko
+        inputs.home-manager.nixosModules.default
+      ];
+    };
+    nixosConfigurations.endor = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/endor/configuration.nix
+        ./modules/1password/1password.nix
+        ./modules/home-manager/home-manager.nix
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.default
       ];
