@@ -83,7 +83,7 @@
     extraSpecialArgs = {inherit inputs;};
 
     users = {
-      "lars" = import ./home.nix;
+      "lars" = import ../../home/lars/home.nix;
     };
   };
 
