@@ -9,7 +9,7 @@
   };
 
   # TTY
-  fonts.fonts = [ pkgs.meslo-lgs-nf ];
+  fonts.packages = [ pkgs.meslo-lgs-nf ];
   services.kmscon = {
     enable = true;
     hwRender = true;
