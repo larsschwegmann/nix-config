@@ -19,9 +19,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Home Manager is a tool for managing user environments in NixOS
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Steamdeck like nixos config
+    jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
@@ -42,6 +49,7 @@
         ./hosts/endor/configuration.nix
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.default
+        inputs.jovian.nixosModules.default
       ];
     };
   };
