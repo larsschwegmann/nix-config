@@ -35,7 +35,7 @@
       efi.canTouchEfiVariables = true;
       systemd-boot.enable = true;
     };
-    kernelModules = [ "kvm-amd" ];
+    # kernelModules = [ "kvm-amd" ]; # already in hardware-configuration.nix
   };
 
 }
