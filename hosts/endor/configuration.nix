@@ -7,14 +7,11 @@
 {
   imports =
     [ # Include the results of the hardware scan.
+      ./boot.nix
       ./hardware-configuration.nix
       ./disko.nix
       inputs.home-manager.nixosModules.default
     ];
-
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostId = "89b20a51";
   networking.hostName = "endor"; # Define your hostname.
@@ -33,24 +30,21 @@
 
   # Select internationalisation properties.
   # i18n.defaultLocale = "en_US.UTF-8";
-  console = {
-    font = "Lat2-Terminus16";
-    # keyMap = "de";
-    useXkbConfig = true; # use xkb.options in tty.
-  };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
+  # services.xserver.enable = true;
 
 
   # Enable the GNOME Desktop Environment.
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  # services.displayManager.gdm.enable = true;
+  # services.desktopManager.gnome.enable = true;
   
 
   # Configure keymap in X11
-  services.xserver.xkb.layout = "de";
-  services.xserver.xkb.options = "eurosign:e,caps:escape";
+  # services.xserver.xkb.layout = "de";
+  # services.xserver.xkb.options = "eurosign:e,caps:escape";
+
+  services.desktopManager.plasma6.enable = true;
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -102,12 +96,13 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     git
-    kitty
     htop
     neofetch
     iperf3
     uv
     python312
+    s-tui
+    stress
   ];
 
   environment.variables = {
@@ -150,6 +145,23 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
+
+  jovian = {
+    hardware = {
+      has.amd.gpu = true;
+      amd.gpu.enableBacklightControl = false;
+    };
+    steam = {
+      updater.splash = "vendor";
+      enable = true;
+      autoStart = true;
+      user = "lars";
+      desktopSession = "plasma";
+    };
+    steamos = {
+      useSteamOSConfig = true;
+    };
+  };
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you

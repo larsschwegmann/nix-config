@@ -22,5 +22,20 @@
   # networking.interfaces.wlp11s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  hardware = {
+    cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+    # The following otions i shamelessly stole from notthebee maya
+    enableRedistributableFirmware = true;
+    cpu.amd = {
+      updateMicrocode = true;
+      ryzen-smu.enable = true;
+    };
+    xone.enable = true;
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+  };
 }
