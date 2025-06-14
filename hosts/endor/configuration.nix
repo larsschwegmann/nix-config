@@ -21,6 +21,11 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  nix.settings.trusted-users = [
+    "root"
+    "lars"
+  ];
+
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
 
