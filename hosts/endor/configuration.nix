@@ -165,6 +165,7 @@
   jovian = {
     hardware = {
       has.amd.gpu = true;
+      amd.gpu.enableEarlyModesetting = true;
       amd.gpu.enableBacklightControl = false;
     };
     steam = {
