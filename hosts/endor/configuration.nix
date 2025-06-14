@@ -100,11 +100,11 @@
   nixpkgs.config.allowUnfree = true;
 
   programs.firefox.enable = true;
-  programs._1password.enable = true;
-  programs._1password-gui = {
-    enable = true;
-    polkitPolicyOwners = [ "lars" ];
-  };
+  # programs._1password.enable = true;
+  # programs._1password-gui = {
+  #   enable = true;
+  #   polkitPolicyOwners = [ "lars" ];
+  # };
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
