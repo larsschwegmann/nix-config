@@ -170,7 +170,7 @@
     steam = {
       updater.splash = "vendor";
       enable = true;
-      autoStart = false;
+      autoStart = true;
       user = "lars";
       desktopSession = "plasma";
     };
