@@ -22,11 +22,14 @@
     enable = true;
     openFirewall = true;
     settings = {
-        PermitRootLogin = "yes";
-        PasswordAuthentication = true;
-        PermitEmptyPasswords = "yes";
+        PermitRootLogin = "prohibit-password";
+        PasswordAuthentication = false;
     };
   };
+
+  users.users."root".openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore"
+  ];
 
   services.immich = {
     enable = true;
