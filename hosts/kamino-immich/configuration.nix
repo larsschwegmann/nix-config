@@ -12,6 +12,8 @@
     privileged = true;
   };
 
+  networking.hostName = "kamino-immich";
+
   security.pam.services.sshd.allowNullPassword = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
