@@ -32,15 +32,10 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-
-    # Steamdeck like nixos config
-    jovian = {
-      url = "github:Jovian-Experiments/Jovian-NixOS";
-      inputs.nixpkgs.follows = "nixpkg-unstable";
-    };
   };
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
+    # actually might need unstable here, not sure how tho
     nixosConfigurations.mustafar = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {inherit inputs;};
@@ -48,17 +43,6 @@
         ./hosts/mustafar/configuration.nix
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.default
-      ];
-    };
-    # might need unstable here actually, not sure how tho
-    nixosConfigurations.endor = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = {inherit inputs;};
-      modules = [
-        ./hosts/endor/configuration.nix
-        inputs.disko.nixosModules.disko
-        inputs.home-manager.nixosModules.default
-        inputs.jovian.nixosModules.default
       ];
     };
     nixosConfigurations.kamino-immich = nixpkgs.lib.nixosSystem {
