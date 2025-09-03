@@ -43,6 +43,19 @@
     mediaLocation = "/mnt/immich";
   };
 
+  services.cloudflared = {
+    enable = true;
+    tunnels = {
+      "eb1aee38-be26-42f5-aebe-f4a381b306ef" = {
+        credentialsFile = "/root/.cloudflared/eb1aee38-be26-42f5-aebe-f4a381b306ef.json";
+        ingress = {
+          "immich.schwegmann.me" = "http://localhost:2283";
+        };
+        default = "http_status:404";
+      };
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
