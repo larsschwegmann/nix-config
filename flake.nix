@@ -24,19 +24,24 @@
 
     # Home Manager is a tool for managing user environments in NixOS
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    home-manager-unstable = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Steamdeck like nixos config
     jovian = {
       url = "github:Jovian-Experiments/Jovian-NixOS";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkg-unstable";
     };
   };
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
-    nixosConfigurations.mustafar = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.mustafar = nixpkgs-unstable.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {inherit inputs;};
       modules = [
@@ -45,7 +50,7 @@
         inputs.home-manager.nixosModules.default
       ];
     };
-    nixosConfigurations.endor = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.endor = nixpkgs-unstable.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {inherit inputs;};
       modules = [
