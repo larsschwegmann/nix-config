@@ -13,6 +13,7 @@
   };
 
   networking.hostName = "kamino-immich";
+  networking.hostId = "66ac1322";
 
   security.pam.services.sshd.allowNullPassword = true;
 
@@ -37,6 +38,7 @@
       server.externalDomain = "https://immich.schwegmann.me";
       newVersionCheck.enabled = true;
     };
+    host = "0.0.0.0";
     port = 2283;
     mediaLocation = "/mnt/immich";
   };
