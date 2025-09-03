@@ -13,7 +13,10 @@
     ];
   };
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs = {
+      url = "github:nixos/nixpkgs/nixos-25.05";
+    };
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -50,6 +53,13 @@
         inputs.disko.nixosModules.disko
         inputs.home-manager.nixosModules.default
         inputs.jovian.nixosModules.default
+      ];
+    };
+    nixosConfigurations.kamino-immich = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/kamino-immich/configuration.nix
       ];
     };
   };
