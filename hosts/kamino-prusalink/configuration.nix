@@ -39,6 +39,7 @@
   services.octoprint = {
     enable = true;
     host = "0.0.0.0";
+    openFirewall = true;
     user = "octoprint";
     group = "octoprint";
   };
