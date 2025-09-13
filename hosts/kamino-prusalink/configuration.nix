@@ -27,13 +27,13 @@
   };
 
   users = {
-    user = {
-        "root".openssh.authorizedKeys.keys = [
+    users."root" = {
+        openssh.authorizedKeys.keys = [
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore"
         ];
     };
-    user."octoprint".uid = 230;
-    group."octoprint".gid = 230;
+    users."octoprint".uid = 230;
+    groups."octoprint".gid = 230;
   };
 
   services.octoprint = {
