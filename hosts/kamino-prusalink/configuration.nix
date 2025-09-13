@@ -12,10 +12,8 @@
     privileged = true;
   };
 
-  networking.hostName = "kamino-immich";
-  networking.hostId = "66ac1322";
-
-  security.pam.services.sshd.allowNullPassword = true;
+  networking.hostName = "kamino-prusalink";
+  networking.hostId = "2185a8ef";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -28,33 +26,21 @@
     };
   };
 
-  users.users."root".openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore"
-  ];
-
-  services.immich = {
-    enable = true;
-    settings = {
-      server.externalDomain = "https://immich.schwegmann.me";
-      newVersionCheck.enabled = false;
+  users = {
+    user = {
+        "root".openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore"
+        ];
     };
-    host = "0.0.0.0";
-    port = 2283;
-    mediaLocation = "/mnt/immich";
-    openFirewall = true;
+    user."octoprint".uid = 230;
+    group."octoprint".gid = 230;
   };
 
-  services.cloudflared = {
+  services.octoprint = {
     enable = true;
-    tunnels = {
-      "eb1aee38-be26-42f5-aebe-f4a381b306ef" = {
-        credentialsFile = "/root/.cloudflared/eb1aee38-be26-42f5-aebe-f4a381b306ef.json";
-        ingress = {
-          "immich.schwegmann.me" = "http://localhost:2283";
-        };
-        default = "http_status:404";
-      };
-    };
+    host = "0.0.0.0";
+    user = "octoprint";
+    group = "octoprint";
   };
 
   environment.systemPackages = with pkgs; [
