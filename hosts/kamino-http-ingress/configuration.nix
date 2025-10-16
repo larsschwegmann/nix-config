@@ -56,11 +56,10 @@
           };
           websecure = {
             address = ":443";
-
           };
 
         };
-        providers.docker.exposedByDefault = false;
+        # providers.docker.exposedByDefault = false;
       };
       dynamicConfigOptions = {
         tls = {
