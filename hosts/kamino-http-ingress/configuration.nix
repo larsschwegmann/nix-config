@@ -13,7 +13,7 @@
   };
 
   networking.hostName = "kamino-http-ingress";
-  networking.hostId = "66ac1322";
+  networking.hostId = "3a11c6dc";
 
   # security.pam.services.sshd.allowNullPassword = true;
 
