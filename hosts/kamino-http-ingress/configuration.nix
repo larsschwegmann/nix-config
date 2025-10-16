@@ -38,6 +38,7 @@
   };
 
   # Traefik
+  users.users.traefik.extraGroups = [ "acme" ];
   services.traefik = {
       enable = true;
       staticConfigOptions = {
@@ -84,7 +85,6 @@
           entryPoints = [ "websecure" ];
           service = "jellyfin";
           tls = {
-            certResolver = "my-resolver";
             domains = {
               main = [ "0x4c53.net" ];
               sans = [ "*.0x4c53.net" ];
