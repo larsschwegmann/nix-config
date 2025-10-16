@@ -40,66 +40,67 @@
   # Traefik
   users.users.traefik.extraGroups = [ "acme" ];
   services.traefik = {
-      enable = true;
-      staticConfigOptions = {
-        global = {
-          checkNewVersion = false;
-          sendAnonymousUsage = false;
-        };
-
-        entryPoints = {
-          web = {
-            address = ":80";
-            http.redirections.entrypoint = {
-              to = "websecure";
-              scheme = "https";
-            };
-          };
-          websecure = {
-            address = ":443";
-          };
-
-        };
-        # providers.docker.exposedByDefault = false;
+    enable = true;
+    staticConfigOptions = {
+      global = {
+        checkNewVersion = false;
+        sendAnonymousUsage = false;
       };
-      dynamicConfigOptions = {
+
+      entryPoints = {
+        web = {
+          address = ":80";
+          http.redirections.entrypoint = {
+            to = "websecure";
+            scheme = "https";
+          };
+        };
+        websecure = {
+          address = ":443";
+        };
+
+      };
+      # providers.docker.exposedByDefault = false;
+    };
+    dynamicConfigOptions = {
+      tls = {
+        stores.default = {
+          defaultCertificate = {
+            certFile = "/var/lib/acme/0x4c53.net/cert.pem";
+            keyFile = "/var/lib/acme/0x4c53.net/key.pem";
+          };
+        };
+
+        certificates = [
+          {
+            certFile = "/var/lib/acme/0x4c53.net/cert.pem";
+            keyFile = "/var/lib/acme/0x4c53.net/key.pem";
+            stores = "default";
+          }
+        ];
+      };
+
+      http.routers.jellyfin = {
+        rule = "Host(`jellyfin.0x4c53.net`)";
+        entryPoints = [ "websecure" ];
+        service = "jellyfin";
         tls = {
-          stores.default = {
-            defaultCertificate = {
-              certFile = "/var/lib/acme/0x4c53.net/cert.pem";
-              keyFile = "/var/lib/acme/0x4c53.net/key.pem";
-            };
-          };
-
-          certificates = [
-            {
-              certFile = "/var/lib/acme/0x4c53.net/cert.pem";
-              keyFile = "/var/lib/acme/0x4c53.net/key.pem";
-              stores = "default";
-            }
-          ];
-        };
-
-        http.routers.jellyfin = {
-          rule = "Host(`jellyfin.0x4c53.net`)";
-          entryPoints = [ "websecure" ];
-          service = "jellyfin";
-          tls = {
-            domains = {
-              main = [ "0x4c53.net" ];
-              sans = [ "*.0x4c53.net" ];
-            };
+          domains = {
+            main = [ "0x4c53.net" ];
+            sans = [ "*.0x4c53.net" ];
           };
         };
+      };
 
-        http.services.jellyfin = {
-          loadBalancer.servers = [{
-            url = "http://10.0.2.69:8096";
-          }];
-        };
+      http.services.jellyfin = {
+        loadBalancer.servers = [{
+          url = "http://10.0.2.69:8096";
+        }];
       };
     };
+  };
 
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
 
   #####################
