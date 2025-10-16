@@ -28,7 +28,7 @@
     acceptTerms = true;
     defaults.email = "info@0x4c53.net";
 
-    certs."0x4c53.net.com" = {
+    certs."0x4c53.net" = {
       domain = "0x4c53.net";
       extraDomainNames = [ "*.0x4c53.net" ];
       dnsProvider = "cloudflare";
