@@ -2,11 +2,20 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, inputs, modulesPath, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  modulesPath,
+  ...
+}:
 
 {
   imports = [ (modulesPath + "/virtualisation/proxmox-lxc.nix") ];
-  nix.settings = { sandbox = false; };  
+  nix.settings = {
+    sandbox = false;
+  };
   proxmoxLXC = {
     manageNetwork = false;
     privileged = true;
@@ -17,9 +26,10 @@
 
   # security.pam.services.sshd.allowNullPassword = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   ###############################
 
@@ -93,15 +103,19 @@
       };
 
       http.services.jellyfin = {
-        loadBalancer.servers = [{
-          url = "http://10.0.2.69:8096";
-        }];
+        loadBalancer.servers = [
+          {
+            url = "http://10.0.2.69:8096";
+          }
+        ];
       };
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
-
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 
   #####################
 
@@ -109,8 +123,8 @@
     enable = true;
     openFirewall = true;
     settings = {
-        PermitRootLogin = "prohibit-password";
-        PasswordAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+      PasswordAuthentication = false;
     };
   };
 
@@ -127,7 +141,5 @@
     iperf3
   ];
 
-
   system.stateVersion = "25.05";
 }
-

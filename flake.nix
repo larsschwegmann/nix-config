@@ -36,6 +36,13 @@
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
     # actually might need unstable here, not sure how tho
+    nixosConfigurations.cloudgw = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/cloudgw/configuration.nix
+      ];
+    };
     nixosConfigurations.mustafar = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {inherit inputs;};
