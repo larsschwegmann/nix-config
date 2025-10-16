@@ -19,6 +19,28 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+
+
+  ###############################
+
+  # ACME config
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "info@0x4c53.net";
+
+    certs."0x4c53.net.com" = {
+      domain = "0x4c53.net";
+      extraDomainNames = [ "*.0x4c53.net" ];
+      dnsProvider = "cloudflare";
+      dnsPropagationCheck = true;
+      credentialsFile = /etc/secrets/acme/cloudflare.ini;
+    };
+  };
+
+
+
+  #####################
+
   services.openssh = {
     enable = true;
     openFirewall = true;
