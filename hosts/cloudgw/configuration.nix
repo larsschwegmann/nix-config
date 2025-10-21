@@ -53,7 +53,6 @@
 
   services.netdata = {
     enable = true;
-    claimTokenFile = "/etc/secrets/netdata/claim.conf";
   };
 
   networking.firewall.allowedTCPPorts = [ 22 ];
