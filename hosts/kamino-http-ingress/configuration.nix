@@ -161,6 +161,7 @@
     git
     htop
     iperf3
+    tmux
   ];
 
   system.stateVersion = "25.05";

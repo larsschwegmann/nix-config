@@ -51,6 +51,11 @@
     };
   };
 
+  services.netdata = {
+    enable = true;
+    claimTokenFile = "/etc/secrets/netdata/claim.conf";
+  };
+
   networking.firewall.allowedTCPPorts = [ 22 ];
 
   environment.systemPackages = with pkgs; [
@@ -60,6 +65,7 @@
     git
     htop
     iperf3
+    tmux
   ];
 
   system.stateVersion = "25.05";
