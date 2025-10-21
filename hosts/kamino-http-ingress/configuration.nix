@@ -90,24 +90,46 @@
         ];
       };
 
-      http.routers.jellyfin = {
-        rule = "Host(`jellyfin.0x4c53.net`)";
-        entryPoints = [ "websecure" ];
-        service = "jellyfin";
-        tls = {
-          domains = {
-            main = [ "0x4c53.net" ];
-            sans = [ "*.0x4c53.net" ];
+      http.routers = {
+        jellyfin = {
+          rule = "Host(`jellyfin.0x4c53.net`)";
+          entryPoints = [ "websecure" ];
+          service = "jellyfin";
+          tls = {
+            domains = {
+              main = [ "0x4c53.net" ];
+              sans = [ "*.0x4c53.net" ];
+            };
+          };
+        };
+        plex = {
+          rule = "Host(`plex.0x4c53.net`)";
+          entryPoints = [ "websecure" ];
+          service = "plex";
+          tls = {
+            domains = {
+              main = [ "0x4c53.net" ];
+              sans = [ "*.0x4c53.net" ];
+            };
           };
         };
       };
 
-      http.services.jellyfin = {
-        loadBalancer.servers = [
-          {
-            url = "http://10.0.2.69:8096";
-          }
-        ];
+      http.services = {
+        jellyfin = {
+          loadBalancer.servers = [
+            {
+              url = "http://10.0.2.69:8096";
+            }
+          ];
+        };
+        plex = {
+          loadBalancer.servers = [
+            {
+              url = "http://10.0.2.69:32400";
+            }
+          ];
+        };
       };
     };
   };
