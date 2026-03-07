@@ -162,22 +162,26 @@
     }];
   };
 
-  # Policy routing: responses from 192.168.91.2 route back through the tunnel
-  # (systemd-networkd equivalent of table + postSetup/postShutdown)
-  systemd.network.networks."50-wg0" = {
-    matchConfig.Name = "wg0";
-    routes = [{
-      Destination = "0.0.0.0/0";
-      Table = 51820;
-    }];
-    routingPolicyRules = [
-      # Keep responses to local/private networks on the main routing table
-      { From = "192.168.91.2"; To = "10.0.0.0/8";      Table = "main"; Priority = 90; }
-      { From = "192.168.91.2"; To = "172.16.0.0/12";   Table = "main"; Priority = 90; }
-      { From = "192.168.91.2"; To = "192.168.0.0/16";  Table = "main"; Priority = 90; }
-      # Responses to public IPs (internet clients) route back through the tunnel
-      { From = "192.168.91.2"; Table = 51820; Priority = 100; }
-    ];
+  # Policy routing: responses from 192.168.91.2 route back through the tunnel.
+  # Cannot use postSetup/postShutdown with networkd, so we use a systemd service instead.
+  systemd.services.wg0-policy-routing = {
+    description = "WireGuard policy routing for wg0";
+    after = [ "wireguard-wg0.service" ];
+    requires = [ "wireguard-wg0.service" ];
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.iproute2 ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = [
+        "${pkgs.iproute2}/bin/ip route add default dev wg0 table 51820"
+        "${pkgs.iproute2}/bin/ip rule add from 192.168.91.2 table 51820 priority 100"
+      ];
+      ExecStop = [
+        "${pkgs.iproute2}/bin/ip rule del from 192.168.91.2 table 51820 priority 100"
+        "${pkgs.iproute2}/bin/ip route del default dev wg0 table 51820"
+      ];
+    };
   };
 
   # Trust all traffic on the tunnel interface
