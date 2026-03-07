@@ -146,6 +146,33 @@
     443
   ];
 
+  # Agenix secret for WireGuard
+  age.secrets.wg-private.file = ../../secrets/kamino-http-ingress-wg-private.age;
+
+  # WireGuard tunnel to cloudgw
+  networking.wireguard.interfaces.wg0 = {
+    ips = [ "192.168.91.2/30" ];
+    privateKeyFile = "/run/agenix/wg-private";
+    table = "51820";
+
+    postSetup = ''
+      ${pkgs.iproute2}/bin/ip rule add from 192.168.91.2 table 51820 priority 100
+    '';
+    postShutdown = ''
+      ${pkgs.iproute2}/bin/ip rule del from 192.168.91.2 table 51820 priority 100 || true
+    '';
+
+    peers = [{
+      publicKey = "N/1SnenUOcifsl2izjZfsU5h/lYAa0/qPddq2VFmWiY=";
+      allowedIPs = [ "0.0.0.0/0" ];
+      endpoint = "91.107.225.201:51820";
+      persistentKeepalive = 25;
+    }];
+  };
+
+  # Trust all traffic on the tunnel interface
+  networking.firewall.trustedInterfaces = [ "wg0" ];
+
   #####################
 
   services.openssh = {
