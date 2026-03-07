@@ -170,11 +170,14 @@
       Destination = "0.0.0.0/0";
       Table = 51820;
     }];
-    routingPolicyRules = [{
-      From = "192.168.91.2";
-      Table = 51820;
-      Priority = 100;
-    }];
+    routingPolicyRules = [
+      # Keep responses to local/private networks on the main routing table
+      { From = "192.168.91.2"; To = "10.0.0.0/8";      Table = "main"; Priority = 90; }
+      { From = "192.168.91.2"; To = "172.16.0.0/12";   Table = "main"; Priority = 90; }
+      { From = "192.168.91.2"; To = "192.168.0.0/16";  Table = "main"; Priority = 90; }
+      # Responses to public IPs (internet clients) route back through the tunnel
+      { From = "192.168.91.2"; Table = 51820; Priority = 100; }
+    ];
   };
 
   # Trust all traffic on the tunnel interface
