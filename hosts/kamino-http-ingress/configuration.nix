@@ -167,8 +167,8 @@
   # Cannot use postSetup/postShutdown with networkd, so we use a systemd service instead.
   systemd.services.wg0-policy-routing = {
     description = "WireGuard policy routing for wg0";
-    after = [ "wireguard-wg0.service" ];
-    requires = [ "wireguard-wg0.service" ];
+    after = [ "systemd-networkd.service" ];
+    requires = [ "systemd-networkd.service" ];
     wantedBy = [ "multi-user.target" ];
     path = [ pkgs.iproute2 ];
     serviceConfig = {
