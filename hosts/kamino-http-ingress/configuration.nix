@@ -141,6 +141,9 @@
     };
   };
 
+  # Disable systemd-resolved stub listener so unbound can bind port 53
+  services.resolved.enable = false;
+
   # Unbound DNS resolver with local overrides for 0x4c53.net
   services.unbound = {
     enable = true;
