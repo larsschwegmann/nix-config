@@ -67,6 +67,7 @@
   networking.wireguard.interfaces.wg0 = {
     ips = [ "192.168.91.1/30" ];
     listenPort = 51820;
+    mtu = 1380;
     privateKeyFile = "/run/agenix/wg-private";
     peers = [{
       publicKey = "DhT9H0bhyfvZFAc57B+AF80mTrEWcklCsGX+VQaKphA=";

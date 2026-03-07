@@ -152,6 +152,7 @@
   # WireGuard tunnel to cloudgw
   networking.wireguard.interfaces.wg0 = {
     ips = [ "192.168.91.2/30" ];
+    mtu = 1380;
     privateKeyFile = "/run/agenix/wg-private";
     table = "51820";
 
