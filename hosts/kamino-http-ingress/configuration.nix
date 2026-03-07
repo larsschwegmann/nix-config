@@ -153,20 +153,27 @@
   networking.wireguard.interfaces.wg0 = {
     ips = [ "192.168.91.2/30" ];
     privateKeyFile = "/run/agenix/wg-private";
-    table = "51820";
-
-    postSetup = ''
-      ${pkgs.iproute2}/bin/ip rule add from 192.168.91.2 table 51820 priority 100
-    '';
-    postShutdown = ''
-      ${pkgs.iproute2}/bin/ip rule del from 192.168.91.2 table 51820 priority 100 || true
-    '';
 
     peers = [{
       publicKey = "N/1SnenUOcifsl2izjZfsU5h/lYAa0/qPddq2VFmWiY=";
       allowedIPs = [ "0.0.0.0/0" ];
       endpoint = "91.107.225.201:51820";
       persistentKeepalive = 25;
+    }];
+  };
+
+  # Policy routing: responses from 192.168.91.2 route back through the tunnel
+  # (systemd-networkd equivalent of table + postSetup/postShutdown)
+  systemd.network.networks."50-wg0" = {
+    matchConfig.Name = "wg0";
+    routes = [{
+      Destination = "0.0.0.0/0";
+      Table = 51820;
+    }];
+    routingPolicyRules = [{
+      From = "192.168.91.2";
+      Table = 51820;
+      Priority = 100;
     }];
   };
 
