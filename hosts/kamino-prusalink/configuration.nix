@@ -5,7 +5,12 @@
 { config, lib, pkgs, inputs, modulesPath, ... }:
 
 {
-  imports = [ (modulesPath + "/virtualisation/proxmox-lxc.nix") ];
+  imports = [
+    (modulesPath + "/virtualisation/proxmox-lxc.nix")
+    ../../modules/auto-upgrade/auto-upgrade.nix
+  ];
+
+  custom.autoUpgrade.enable = true;
   nix.settings = { sandbox = false; };  
   proxmoxLXC = {
     manageNetwork = false;
