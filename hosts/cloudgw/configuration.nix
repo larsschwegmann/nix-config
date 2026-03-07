@@ -106,6 +106,7 @@
     htop
     iperf3
     tmux
+    tcpdump
   ];
 
   system.stateVersion = "25.05";
