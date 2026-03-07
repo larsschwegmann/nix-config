@@ -153,6 +153,7 @@
   networking.wireguard.interfaces.wg0 = {
     ips = [ "192.168.91.2/30" ];
     privateKeyFile = "/run/agenix/wg-private";
+    table = "51820";
 
     peers = [{
       publicKey = "N/1SnenUOcifsl2izjZfsU5h/lYAa0/qPddq2VFmWiY=";
@@ -173,14 +174,8 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = [
-        "${pkgs.iproute2}/bin/ip route add default dev wg0 table 51820"
-        "${pkgs.iproute2}/bin/ip rule add from 192.168.91.2 table 51820 priority 100"
-      ];
-      ExecStop = [
-        "${pkgs.iproute2}/bin/ip rule del from 192.168.91.2 table 51820 priority 100"
-        "${pkgs.iproute2}/bin/ip route del default dev wg0 table 51820"
-      ];
+      ExecStart = "${pkgs.iproute2}/bin/ip rule add from 192.168.91.2 table 51820 priority 100";
+      ExecStop = "${pkgs.iproute2}/bin/ip rule del from 192.168.91.2 table 51820 priority 100";
     };
   };
 
