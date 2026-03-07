@@ -17,6 +17,10 @@
       url = "github:nixos/nixpkgs/nixos-25.05";
     };
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -41,6 +45,7 @@
       specialArgs = {inherit inputs;};
       modules = [
         ./hosts/cloudgw/configuration.nix
+        inputs.agenix.nixosModules.default
       ];
     };
     nixosConfigurations.mustafar = nixpkgs.lib.nixosSystem {
@@ -71,6 +76,7 @@
       specialArgs = {inherit inputs;};
       modules = [
         ./hosts/kamino-http-ingress/configuration.nix
+        inputs.agenix.nixosModules.default
       ];
     };
   };
