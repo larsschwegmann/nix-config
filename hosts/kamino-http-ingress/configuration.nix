@@ -15,9 +15,11 @@
   imports = [
     (modulesPath + "/virtualisation/proxmox-lxc.nix")
     ../../modules/auto-upgrade/auto-upgrade.nix
+    ../../modules/nix-cleanup/nix-cleanup.nix
   ];
 
   custom.autoUpgrade.enable = true;
+  custom.nixCleanup.enable = true;
   nix.settings = {
     sandbox = false;
   };

@@ -12,9 +12,11 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../../modules/auto-upgrade/auto-upgrade.nix
+    ../../modules/nix-cleanup/nix-cleanup.nix
   ];
 
   custom.autoUpgrade.enable = true;
+  custom.nixCleanup.enable = true;
 
   nix.settings = {
     experimental-features = "nix-command flakes";
