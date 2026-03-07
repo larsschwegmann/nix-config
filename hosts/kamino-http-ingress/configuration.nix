@@ -141,9 +141,33 @@
     };
   };
 
+  # Unbound DNS resolver with local overrides for 0x4c53.net
+  services.unbound = {
+    enable = true;
+    settings = {
+      server = {
+        interface = [ "0.0.0.0" ];
+        access-control = [
+          "10.0.0.0/8 allow"
+          "192.168.0.0/16 allow"
+          "127.0.0.0/8 allow"
+        ];
+
+        # Override 0x4c53.net to resolve to the local LAN IP
+        local-zone = [ "\"0x4c53.net.\" transparent" ];
+        local-data = [
+          "\"jellyfin.0x4c53.net. A 10.0.2.154\""
+          "\"plex.0x4c53.net. A 10.0.2.154\""
+        ];
+      };
+    };
+  };
+
+  networking.firewall.allowedUDPPorts = [ 53 ];
   networking.firewall.allowedTCPPorts = [
     80
     443
+    53
   ];
 
   # Agenix secret for WireGuard
