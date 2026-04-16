@@ -126,14 +126,14 @@
         jellyfin = {
           loadBalancer.servers = [
             {
-              url = "http://10.0.2.69:8096";
+              url = "http://192.168.36.69:8096";
             }
           ];
         };
         plex = {
           loadBalancer.servers = [
             {
-              url = "http://10.0.2.69:32400";
+              url = "http://192.168.36.69:32400";
             }
           ];
         };
@@ -151,7 +151,6 @@
       server = {
         interface = [ "0.0.0.0" ];
         access-control = [
-          "10.0.0.0/8 allow"
           "192.168.0.0/16 allow"
           "127.0.0.0/8 allow"
         ];
@@ -159,8 +158,8 @@
         # Override 0x4c53.net to resolve to the local LAN IP
         local-zone = [ "\"0x4c53.net.\" transparent" ];
         local-data = [
-          "\"jellyfin.0x4c53.net. A 10.0.2.154\""
-          "\"plex.0x4c53.net. A 10.0.2.154\""
+          "\"jellyfin.0x4c53.net. A 192.168.36.123\""
+          "\"plex.0x4c53.net. A 192.168.36.123\""
         ];
       };
     };
