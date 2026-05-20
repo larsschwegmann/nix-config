@@ -37,7 +37,7 @@
 
   systemd.tmpfiles.rules = [
     "d /var/lib/inference 0755 root root -"
-    "d /var/lib/inference/ollama 0755 ollama ollama -"
+    "d /var/lib/inference/ollama 0777 root root -"
     "d /var/lib/inference/models 0755 root root -"
     "d /var/lib/inference/logs 0755 root root -"
   ];
@@ -52,7 +52,7 @@
       Type = "oneshot";
     };
     script = ''
-      test -d /var/lib/inference/ollama
+      test -d /var/lib/inference
       test -d /var/lib/inference/models
     '';
   };
@@ -66,8 +66,8 @@
       coreutils
       gnugrep
       gawk
-      parted
       e2fsprogs
+      cloud-utils
       util-linux
       systemd
     ];
@@ -85,10 +85,9 @@
       partnum="$(lsblk -no PARTN "$part")"
       disk="/dev/$pkname"
 
-      parted -s "$disk" resizepart "$partnum" 100%
+      growpart "$disk" "$partnum" || true
       partprobe "$disk"
       udevadm settle
-
       resize2fs "$part"
 
       touch "$stamp"
@@ -105,6 +104,10 @@
     after = [ "inference-data-ready.service" ];
     requires = [ "inference-data-ready.service" ];
     serviceConfig = {
+      ReadWritePaths = lib.mkAfter [
+        "/var/lib/inference"
+        "/var/lib/inference/ollama"
+      ];
       Environment = [
         "OLLAMA_MODELS=/var/lib/inference/ollama"
       ];
@@ -136,8 +139,8 @@
     curl
     wget
     llama-cpp
-    parted
     e2fsprogs
+    cloud-utils
     util-linux
   ];
 
