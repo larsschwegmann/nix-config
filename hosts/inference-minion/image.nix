@@ -49,7 +49,7 @@
 
     "30-infer-data" = {
       repartConfig = {
-        Type = "home";
+        Type = "linux-generic";
         Format = "ext4";
         Label = "INFER_DATA";
         SizeMinBytes = "1G";

@@ -12,6 +12,7 @@
   networking.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -61,7 +62,7 @@
     description = "Grow INFER_DATA partition and filesystem once";
     wantedBy = [ "multi-user.target" ];
     before = [ "inference-data-ready.service" "ollama.service" "llama-server.service" ];
-    after = [ "local-fs.target" ];
+    after = [ "local-fs.target" "systemd-udev-settle.service" ];
     path = with pkgs; [
       coreutils
       gnugrep
@@ -82,17 +83,28 @@
 
       part="$(realpath /dev/disk/by-label/INFER_DATA)"
       pkname="$(lsblk -no PKNAME "$part")"
-      partnum="$(lsblk -no PARTN "$part")"
+      partnum="$(lsblk -no PARTN "$part" | tr -d '[:space:]')"
       disk="/dev/$pkname"
 
+      if ! [[ "$partnum" =~ ^[0-9]+$ ]]; then
+        partnum="$(basename "$part" | sed -E 's/^.*[^0-9]([0-9]+)$/\1/')"
+      fi
+
+      if ! [[ "$partnum" =~ ^[0-9]+$ ]]; then
+        echo "Could not determine partition number for $part" >&2
+        exit 1
+      fi
+
       growpart "$disk" "$partnum" || true
-      partprobe "$disk"
+      blockdev --rereadpt "$disk" || true
       udevadm settle
       resize2fs "$part"
 
       touch "$stamp"
     '';
   };
+
+  services.getty.autologinUser = "root";
 
   services.ollama = {
     enable = true;
