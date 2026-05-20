@@ -1,0 +1,38 @@
+name: Build inference-minion image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restrict workflow trigger actor
+        if: github.actor != 'larsschwegmann'
+        run: |
+          echo "This workflow may only be triggered by larsschwegmann."
+          echo "Triggered by: ${{ github.actor }}"
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build inference-minion image
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          out=$(nix --accept-flake-config --extra-experimental-features "nix-command flakes" build --no-link --print-out-paths .#packages.x86_64-linux.inference-minion-usb)
+          cp -aL "$out" "results/inference-minion-usb-image"
+          ls -lah results
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inference-minion-usb-image
+          path: results/inference-minion-usb-image
+          if-no-files-found: error
+          retention-days: 3

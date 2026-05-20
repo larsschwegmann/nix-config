@@ -79,5 +79,15 @@
         inputs.agenix.nixosModules.default
       ];
     };
+    nixosConfigurations.inference-minion = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/inference-minion/configuration.nix
+      ];
+    };
+
+    packages.x86_64-linux.inference-minion-usb =
+      self.nixosConfigurations.inference-minion.config.system.build.image;
   };
 }
