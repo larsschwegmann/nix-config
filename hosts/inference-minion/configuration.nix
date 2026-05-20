@@ -1,6 +1,10 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
+let
+  unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.system};
+in
 {
+
   imports = [
     ./image.nix
   ];
@@ -39,6 +43,7 @@
   systemd.tmpfiles.rules = [
     "d /var/lib/inference 0755 root root -"
     "d /var/lib/inference/ollama 0777 root root -"
+    "d /var/lib/inference/ollama-vulkan 0777 root root -"
     "d /var/lib/inference/models 0755 root root -"
     "d /var/lib/inference/logs 0755 root root -"
   ];
@@ -110,6 +115,7 @@
     enable = true;
     host = "0.0.0.0";
     port = 11434;
+    package = unstablePkgs.ollama-rocm;
   };
 
   systemd.services.ollama = {
@@ -126,6 +132,30 @@
     };
   };
 
+  systemd.services.ollama-vulkan = {
+    description = "Server for local large language models (Vulkan backend)";
+    after = [ "network.target" "inference-data-ready.service" ];
+    requires = [ "inference-data-ready.service" ];
+    wantedBy = [ ];
+    serviceConfig = {
+      Type = "simple";
+      DynamicUser = true;
+      StateDirectory = "ollama-vulkan";
+      WorkingDirectory = "/var/lib/ollama-vulkan";
+      Environment = [
+        "OLLAMA_HOST=0.0.0.0:11435"
+        "OLLAMA_MODELS=/var/lib/inference/ollama-vulkan"
+      ];
+      ExecStart = "${unstablePkgs.ollama-vulkan}/bin/ollama serve";
+      Restart = "on-failure";
+      RestartSec = 5;
+      ReadWritePaths = [
+        "/var/lib/inference"
+        "/var/lib/inference/ollama-vulkan"
+      ];
+    };
+  };
+
   systemd.services.llama-server = {
     description = "llama.cpp OpenAI-compatible server";
     after = [ "network-online.target" "inference-data-ready.service" ];
@@ -134,13 +164,13 @@
     wantedBy = [ ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.llama-cpp}/bin/llama-server --host 0.0.0.0 --port 8080 --model /var/lib/inference/models/default.gguf";
+      ExecStart = "${unstablePkgs.llama-cpp}/bin/llama-server --host 0.0.0.0 --port 8080 --model /var/lib/inference/models/default.gguf";
       Restart = "on-failure";
       RestartSec = 5;
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 22 11434 ];
+  networking.firewall.allowedTCPPorts = [ 22 11434 11435 ];
   # Keep 8080 closed by default. Open it when enabling llama-server for remote access.
 
   environment.systemPackages = with pkgs; [
@@ -150,7 +180,9 @@
     tmux
     curl
     wget
-    llama-cpp
+    unstablePkgs.llama-cpp
+    unstablePkgs.ollama-rocm
+    unstablePkgs.ollama-vulkan
     e2fsprogs
     cloud-utils
     util-linux
