@@ -58,6 +58,12 @@ in
       Type = "oneshot";
     };
     script = ''
+      mkdir -p /var/lib/inference/ollama
+      mkdir -p /var/lib/inference/ollama-vulkan
+      mkdir -p /var/lib/inference/models
+      mkdir -p /var/lib/inference/logs
+      chmod 0777 /var/lib/inference/ollama /var/lib/inference/ollama-vulkan
+
       test -d /var/lib/inference
       test -d /var/lib/inference/models
     '';
