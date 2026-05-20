@@ -7,7 +7,8 @@
 
   image.repart.name = "inference-minion";
 
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.loader.grub.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = false;
   boot.loader.efi.efiSysMountPoint = "/boot";
 
@@ -24,7 +25,7 @@
   image.repart.partitions = {
     "10-esp" = {
       contents = {
-        "/EFI/BOOT/BOOTX64.EFI".source = "${pkgs.systemd}/lib/systemd/boot/efi/systemd-bootx64.efi";
+        "/EFI/BOOT/BOOTX64.EFI".source = "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
       };
       repartConfig = {
         Type = "esp";
