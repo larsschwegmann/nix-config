@@ -9,7 +9,7 @@ in
     ./image.nix
   ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "uas" "sd_mod" ];
   boot.kernelPackages = unstablePkgs.linuxPackages_latest;
   boot.kernelModules = [ "kvm-amd" "amdgpu" ];
 
