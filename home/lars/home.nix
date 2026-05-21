@@ -20,15 +20,18 @@
 
   programs.git = {
     enable = true;
-    userEmail = "schwegmannlars@gmail.com";
-    userName = "Lars Schwegmann";
 
-    extraConfig = {
-    # For 1Password git signing
-    #   gpg = { format = "ssh"; };
-    #   "gpg \"ssh\"" = {
-    #     program = "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
-    #   };
+    settings = {
+      user = {
+        email = "schwegmannlars@gmail.com";
+        name = "Lars Schwegmann";
+      };
+
+      # For 1Password git signing
+      # gpg = { format = "ssh"; };
+      # "gpg \"ssh\"" = {
+      #   program = "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
+      # };
 
       push = { autoSetupRemote = true; };
       init = { defaultBranch = "main"; };
@@ -37,10 +40,24 @@
 
   programs.ssh = {
     enable = true;
-    extraConfig = ''
-      Host *
-          IdentityAgent ~/.1password/agent.sock
-    '';
+    enableDefaultConfig = false;
+    matchBlocks."*" = {
+      addKeysToAgent = "no";
+      checkHostIP = true;
+      compression = false;
+      controlMaster = "no";
+      controlPath = "~/.ssh/master-%r@%n:%p";
+      controlPersist = "no";
+      forwardAgent = false;
+      forwardX11 = false;
+      forwardX11Trusted = false;
+      hashKnownHosts = false;
+      identitiesOnly = false;
+      identityAgent = [ "~/.1password/agent.sock" ];
+      serverAliveCountMax = 3;
+      serverAliveInterval = 0;
+      userKnownHostsFile = "~/.ssh/known_hosts";
+    };
   };
 
   programs.vscode = {

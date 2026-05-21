@@ -79,7 +79,7 @@
     extraSpecialArgs = {inherit inputs;};
 
     users = {
-      "lars" = import ./home.nix;
+      "lars" = import ../../home/lars/home.nix;
     };
   };
 
@@ -164,4 +164,3 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
-

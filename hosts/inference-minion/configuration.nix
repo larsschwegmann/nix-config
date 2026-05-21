@@ -1,7 +1,7 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.system};
+  unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
 {
 
@@ -10,7 +10,8 @@ in
   ];
 
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelPackages = unstablePkgs.linuxPackages_latest;
+  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
 
   networking.hostName = "inference-minion";
   networking.useDHCP = lib.mkDefault true;
@@ -18,6 +19,18 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  services.xserver.videoDrivers = [ "amdgpu" ];
+
+  hardware.graphics = {
+    enable = true;
+    package = unstablePkgs.mesa;
+    extraPackages = with unstablePkgs; [
+      rocmPackages.clr.icd
+      rocmPackages.rocminfo
+      rocmPackages.rocm-runtime
+    ];
+  };
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -186,9 +199,14 @@ in
     tmux
     curl
     wget
+    pciutils
+    usbutils
+    clinfo
+    vulkan-tools
     unstablePkgs.llama-cpp
     unstablePkgs.ollama-rocm
     unstablePkgs.ollama-vulkan
+    unstablePkgs.rocmPackages.rocminfo
     e2fsprogs
     cloud-utils
     util-linux

@@ -1,6 +1,6 @@
 # Nix Config
 
-Flake-based NixOS configuration managing multiple hosts. All hosts are x86_64-linux. Uses nixpkgs 25.05 (stable) with an unstable channel available.
+Flake-based NixOS configuration managing multiple hosts. All hosts are x86_64-linux. Uses nixpkgs 25.11 (stable) with an unstable channel available.
 
 ## Repository Structure
 
@@ -53,7 +53,7 @@ nix flake update
 
 ## Flake Inputs
 
-- `nixpkgs` (nixos-25.05) / `nixpkgs-unstable`
-- `home-manager` (release-25.05) / `home-manager-unstable`
+- `nixpkgs` (nixos-25.11) / `nixpkgs-unstable`
+- `home-manager` (release-25.11) / `home-manager-unstable`
 - `disko` — declarative disk partitioning (used by mustafar)
 - Binary caches: cachix, nixpkgs, nix-community
