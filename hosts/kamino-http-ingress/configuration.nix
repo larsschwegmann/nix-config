@@ -50,7 +50,11 @@
       extraDomainNames = [ "*.0x4c53.net" ];
       dnsProvider = "cloudflare";
       dnsPropagationCheck = true;
+      # Bypass local unbound: it caches the challenge NXDOMAIN for 30min, outlasting lego's propagation timeout
+      dnsResolver = "1.1.1.1:53";
       credentialsFile = /etc/secrets/acme/cloudflare.ini;
+      # Traefik doesn't watch cert files, so restart it to pick up renewed certs
+      reloadServices = [ "traefik" ];
     };
   };
 
@@ -149,10 +153,15 @@
     enable = true;
     settings = {
       server = {
-        interface = [ "0.0.0.0" ];
+        # ::1 is listed in resolv.conf, so listen there too
+        interface = [
+          "0.0.0.0"
+          "::1"
+        ];
         access-control = [
           "192.168.0.0/16 allow"
           "127.0.0.0/8 allow"
+          "::1 allow"
         ];
 
         # Override 0x4c53.net to resolve to the local LAN IP
