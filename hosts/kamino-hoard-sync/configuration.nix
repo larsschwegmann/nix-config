@@ -42,6 +42,7 @@
     enable = true;
     tls = "external";
     trustedProxy = "192.168.36.123";
+    appStoreApiKey = true;
   };
 
   services.openssh = {
