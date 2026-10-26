@@ -11,6 +11,10 @@
   ...
 }:
 
+let
+  # kamino-hoard-sync's static IP (Proxmox), where Traefik forwards sync.hoardapp.dev to.
+  hoardSyncAddress = "192.168.36.210";
+in
 {
   imports = [
     (modulesPath + "/virtualisation/proxmox-lxc.nix")
@@ -56,7 +60,20 @@
       # Traefik doesn't watch cert files, so restart it to pick up renewed certs
       reloadServices = [ "traefik" ];
     };
+
+    certs."hoardapp.dev" = {
+      domain = "hoardapp.dev";
+      extraDomainNames = [ "*.hoardapp.dev" ];
+      dnsProvider = "cloudflare";
+      dnsPropagationCheck = true;
+      dnsResolver = "1.1.1.1:53";
+      # CLOUDFLARE_DNS_API_TOKEN, scoped to DNS edit on the hoardapp.dev zone (ops/hoard-sync-setup.md in the private hoardapp repo)
+      credentialsFile = config.age.secrets.hoardapp-cloudflare-env.path;
+      reloadServices = [ "traefik" ];
+    };
   };
+
+  age.secrets.hoardapp-cloudflare-env.file = ../../secrets/kamino-http-ingress-hoardapp-cloudflare-env.age;
 
   # Traefik
   users.users.traefik.extraGroups = [ "acme" ];
@@ -98,6 +115,11 @@
             keyFile = "/var/lib/acme/0x4c53.net/key.pem";
             stores = "default";
           }
+          {
+            certFile = "/var/lib/acme/hoardapp.dev/cert.pem";
+            keyFile = "/var/lib/acme/hoardapp.dev/key.pem";
+            stores = "default";
+          }
         ];
       };
 
@@ -124,6 +146,29 @@
             };
           };
         };
+        # Hoard Sync on kamino-hoard-sync (modules/hoard-sync)
+        sync = {
+          rule = "Host(`sync.hoardapp.dev`)";
+          entryPoints = [ "websecure" ];
+          service = "hoard-sync";
+          tls = {
+            domains = {
+              main = [ "hoardapp.dev" ];
+              sans = [ "*.hoardapp.dev" ];
+            };
+          };
+        };
+        sync-staging = {
+          rule = "Host(`sync-staging.hoardapp.dev`)";
+          entryPoints = [ "websecure" ];
+          service = "hoard-sync-staging";
+          tls = {
+            domains = {
+              main = [ "hoardapp.dev" ];
+              sans = [ "*.hoardapp.dev" ];
+            };
+          };
+        };
       };
 
       http.services = {
@@ -138,6 +183,20 @@
           loadBalancer.servers = [
             {
               url = "http://192.168.36.69:32400";
+            }
+          ];
+        };
+        hoard-sync = {
+          loadBalancer.servers = [
+            {
+              url = "http://${hoardSyncAddress}:8080";
+            }
+          ];
+        };
+        hoard-sync-staging = {
+          loadBalancer.servers = [
+            {
+              url = "http://${hoardSyncAddress}:8081";
             }
           ];
         };
@@ -165,10 +224,16 @@
         ];
 
         # Override 0x4c53.net to resolve to the local LAN IP
-        local-zone = [ "\"0x4c53.net.\" transparent" ];
+        # Same for hoardapp.dev: LAN clients reach the sync servers through this Traefik directly
+        local-zone = [
+          "\"0x4c53.net.\" transparent"
+          "\"hoardapp.dev.\" transparent"
+        ];
         local-data = [
           "\"jellyfin.0x4c53.net. A 192.168.36.123\""
           "\"plex.0x4c53.net. A 192.168.36.123\""
+          "\"sync.hoardapp.dev. A 192.168.36.123\""
+          "\"sync-staging.hoardapp.dev. A 192.168.36.123\""
         ];
       };
     };
