@@ -44,6 +44,29 @@ let
 
   garageS3 = "http://127.0.0.1:3900";
   garageRegion = "garage";
+  # One Litestream config per instance (JSON is valid YAML).
+  litestreamConfig =
+    name:
+    pkgs.writeText "litestream-${name}.yml" (
+      builtins.toJSON {
+        dbs = [
+          {
+            dir = "${stateDir name}/realms";
+            pattern = "hoard.sqlite";
+            recursive = true;
+            watch = true;
+            replica = {
+              type = "s3";
+              bucket = "hoard-${name}-litestream";
+              path = "realms";
+              endpoint = garageS3;
+              region = garageRegion;
+              force-path-style = true;
+            };
+          }
+        ];
+      }
+    );
   pgBackupBucket = "hoard-pg-backups";
 
   secret = name: {
@@ -237,45 +260,44 @@ in
           };
         };
 
-        # Litestream 0.5 in directory mode: every realms/<uuid>/hoard.sqlite, including ones created
-        # later, is replicated continuously to hoard-<instance>-litestream under realms/<uuid>/.
-        # This is the backup and the migration path (ops/hoard-sync-migration.md in the private hoardapp repo).
-        services.litestream = {
-          enable = true;
-          package = pkgsUnstable.litestream;
-          environmentFile = secretPath "hoard-sync-backup-env";
-          settings.dbs = lib.mapAttrsToList (name: _: {
-            dir = "${stateDir name}/realms";
-            pattern = "hoard.sqlite";
-            recursive = true;
-            watch = true;
-            replica = {
-              type = "s3";
-              bucket = "hoard-${name}-litestream";
-              path = "realms";
-              endpoint = garageS3;
-              region = garageRegion;
-              force-path-style = true;
-            };
-          }) instances;
-        };
-        # Litestream writes next to the databases (WAL checkpoints, its own metadata), so it joins
-        # each instance's group; the servers run with UMask 0007.
-        users.users.litestream.extraGroups = map dbName (lib.attrNames instances);
-        systemd.services.litestream = {
-          after = [
-            "garage.service"
-            "systemd-tmpfiles-setup.service"
-          ];
-          wants = [ "garage.service" ];
-          serviceConfig.RestartSec = 5;
-        };
-
-        # `garage` (a wrapper that loads the admin token) and `litestream` come from their modules.
+        # `garage` (a wrapper that loads the admin token) comes from its module.
         environment.systemPackages = [
+          pkgsUnstable.litestream
           pkgs.rclone
           pkgs.sqlite
         ];
+      }
+
+      # Litestream 0.5 in directory mode: every realms/<uuid>/hoard.sqlite, including ones created
+      # later, is replicated continuously to hoard-<instance>-litestream under realms/<uuid>/.
+      # This is the backup and the migration path (ops/hoard-sync-migration.md in the private
+      # hoardapp repo). One Litestream per instance, running as that instance's user: Litestream
+      # writes into the databases (its own tables, WAL checkpoints) and next to them, and SQLite
+      # creates its files 0644 whatever the umask, so a shared Litestream user can't write them, and
+      # files it did create would lock the server out of its own database.
+      {
+        systemd.services = lib.mapAttrs' (
+          name: _:
+          lib.nameValuePair "litestream-${name}" {
+            description = "Litestream replication of hoard-sync-${name}'s realms";
+            after = [
+              "network.target"
+              "garage.service"
+              "systemd-tmpfiles-setup.service"
+            ];
+            wants = [ "garage.service" ];
+            wantedBy = [ "multi-user.target" ];
+            serviceConfig = {
+              User = dbName name;
+              Group = dbName name;
+              UMask = "0007";
+              EnvironmentFile = secretPath "hoard-sync-backup-env";
+              ExecStart = "${pkgsUnstable.litestream}/bin/litestream replicate -config ${litestreamConfig name}";
+              Restart = "always";
+              RestartSec = 5;
+            };
+          }
+        ) instances;
       }
 
       ######## TLS terminates on another host: open the instance ports to that proxy only ########
