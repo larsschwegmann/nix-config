@@ -4,3 +4,13 @@ result-*
 
 # Ignore automatically generated direnv output
 .direnv
+
+# Leak guards: plaintext secrets never belong here (this repo is public). Only secrets/*.age.
+*.p8
+*.pem
+*.key
+*.env
+*-plain*
+secrets/*
+!secrets/*.age
+!secrets/secrets.nix
