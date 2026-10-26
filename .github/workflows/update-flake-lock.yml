@@ -16,6 +16,12 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@main
 
+      # The hoard input is a private repo: fetch it with its read-only deploy key (an Actions
+      # secret, never in this repo). The action also adds GitHub's host keys to known_hosts.
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HOARDAPP_DEPLOY_KEY }}
+
       - name: Update flake.lock
         run: nix flake update
 

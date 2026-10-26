@@ -36,6 +36,13 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    # Private repo: only kamino-hoard-sync uses it. Inputs are fetched lazily, so the other hosts
+    # never touch it; the host and CI fetch it with the hoardapp deploy key (ops/hoard-sync-setup.md in the private hoardapp repo).
+    hoard = {
+      url = "git+ssh://git@github.com/larsschwegmann/hoardapp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
@@ -77,6 +84,15 @@
       modules = [
         ./hosts/kamino-http-ingress/configuration.nix
         inputs.agenix.nixosModules.default
+      ];
+    };
+    nixosConfigurations.kamino-hoard-sync = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/kamino-hoard-sync/configuration.nix
+        inputs.agenix.nixosModules.default
+        inputs.hoard.nixosModules.hoard-sync
       ];
     };
     nixosConfigurations.inference-minion = nixpkgs.lib.nixosSystem {
