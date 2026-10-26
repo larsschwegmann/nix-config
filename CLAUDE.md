@@ -18,7 +18,8 @@ modules/               # Reusable NixOS modules with custom.* option namespace
 | **mustafar** | Desktop workstation (GNOME, home-manager, 1Password, disko) | Bare metal |
 | **kamino-immich** | Immich photo service | Proxmox LXC container |
 | **kamino-prusalink** | PrusaLink 3D printer integration | Proxmox LXC container |
-| **kamino-http-ingress** | HTTP reverse proxy/ingress | Proxmox LXC container |
+| **kamino-http-ingress** | HTTP reverse proxy/ingress (Traefik, ACME for 0x4c53.net and hoardapp.dev, Unbound split DNS) | Proxmox LXC container |
+| **kamino-hoard-sync** | Hoard Sync: `sync.hoardapp.dev` + `sync-staging.hoardapp.dev`, Garage, Postgres, Litestream | Proxmox LXC container |
 
 The `kamino-*` hosts are Proxmox LXC containers (privileged, `sandbox = false`). `mustafar` is the only desktop host and uses home-manager for user-level config.
 
@@ -28,6 +29,7 @@ Modules live in `modules/` and follow the `custom.*` option pattern with `enable
 
 - **`custom.autoUpgrade`** — Auto-rebuild from `github:larsschwegmann/nix-config` on a schedule
 - **`custom.nixCleanup`** — Periodic nix store garbage collection and optimisation
+- **`custom.hoardSync`** — The whole Hoard Sync service (instances from the private `hoard` flake input, Garage, Postgres, backups, firewall, secrets); hosts only set `tls` and `trustedProxy`. Setup and moving hosts: `ops/` in the private hoardapp repo
 - **`modules/1password/`** — 1Password GUI + browser integration (imported directly, no enable toggle)
 
 All server hosts enable `autoUpgrade` and `nixCleanup`.
@@ -56,4 +58,6 @@ nix flake update
 - `nixpkgs` (nixos-25.11) / `nixpkgs-unstable`
 - `home-manager` (release-25.11) / `home-manager-unstable`
 - `disko` — declarative disk partitioning (used by mustafar)
+- `agenix` — secrets as `secrets/*.age`, recipients in `secrets/secrets.nix`; encrypt with `scripts/encrypt-secret.sh` (brew `age`). This repo is public: never commit plaintext secrets
+- `hoard` — the private `larsschwegmann/hoardapp` repo (git+ssh). Only kamino-hoard-sync uses it; it fetches with the agenix deploy key, CI with the `HOARDAPP_DEPLOY_KEY` Actions secret
 - Binary caches: cachix, nixpkgs, nix-community
