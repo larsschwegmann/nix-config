@@ -25,11 +25,13 @@ let
     prod = {
       port = 8080;
       domain = "sync.hoardapp.dev";
-      # App Review and TestFlight purchase in the sandbox, so production accepts both.
+      # App Review and TestFlight purchase in the sandbox, so production accepts both, and keeps
+      # those households until refunded (staging keeps Apple's fast sandbox expiry for testing).
       environments = [
         "Production"
         "Sandbox"
       ];
+      sandboxUntilRefund = true;
     };
     staging = {
       port = 8081;
@@ -157,6 +159,7 @@ in
           trustedProxy = if cfg.tls == "external" then cfg.trustedProxy else "127.0.0.1";
           instances = lib.mapAttrs (name: instance: {
             inherit (instance) port environments;
+            sandboxUntilRefund = instance.sandboxUntilRefund or false;
             publicUrl = "https://${instance.domain}";
             billing = "apple";
             s3 = {

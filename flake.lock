@@ -50,11 +50,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1793050403,
-        "narHash": "sha256-yDnZmm856wlISMdlCmMryb1st3L3TnY0D1J5aZ+Omg4=",
+        "lastModified": 1793098768,
+        "narHash": "sha256-Nt7uzEOFmEfqvG0jwYJGPTqORLPoysUC5Io3gW02Gr0=",
         "ref": "refs/heads/main",
-        "rev": "276962c39bcbb76417c39c4c69c3bb2b5127a931",
-        "revCount": 73,
+        "rev": "12fc4be15c618b466234a50fede7abbe4bb9651e",
+        "revCount": 78,
         "type": "git",
         "url": "ssh://git@github.com/larsschwegmann/hoardapp"
       },
