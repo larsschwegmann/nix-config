@@ -50,11 +50,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1793043937,
-        "narHash": "sha256-rBTVMyYs0jhWVZxRzdkdoqeyHzVrLnlhw5M4u+pwhjQ=",
+        "lastModified": 1793050403,
+        "narHash": "sha256-yDnZmm856wlISMdlCmMryb1st3L3TnY0D1J5aZ+Omg4=",
         "ref": "refs/heads/main",
-        "rev": "a0266b8bb8d224c3a8ddd0f5cac88a7ead359861",
-        "revCount": 71,
+        "rev": "276962c39bcbb76417c39c4c69c3bb2b5127a931",
+        "revCount": 73,
         "type": "git",
         "url": "ssh://git@github.com/larsschwegmann/hoardapp"
       },
@@ -91,11 +91,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792896866,
-        "narHash": "sha256-/0tELNnhdSnP+bHSdWiEe6KpfSwi6WrTnT9cm/jNkjA=",
+        "lastModified": 1793033486,
+        "narHash": "sha256-fXVURa0+CSCgaxLt8tmPNJq2U+fGYOwbk5j2YUe7kSc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "c216bf5a1f173b0481bd5c8c489ebe5595ecc68c",
+        "rev": "7db163b2aee7e410e396b48aed02f646d742b9b8",
         "type": "github"
       },
       "original": {
