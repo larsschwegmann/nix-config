@@ -21,6 +21,9 @@ in {
   "hoard-sync-staging-env.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
   "hoard-sync-backup-env.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
   "hoard-sync-appstore-key.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
+  # S3 Manager (LAN-only bucket browser): a read-only Garage key, and the htpasswd for its login.
+  "hoard-sync-s3manager-env.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
+  "hoard-sync-s3manager-htpasswd.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
   # Only for a standalone host with tls = "builtin" (ops/hoard-sync-migration.md in the private hoardapp repo).
   "hoard-sync-cloudflare-env.age".publicKeys = [ lars lars-age ];
 }

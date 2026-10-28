@@ -110,6 +110,24 @@ in
       description = "ACME account e-mail (tls = \"builtin\" only).";
     };
 
+    s3manager = {
+      enable = lib.mkEnableOption ''
+        S3 Manager, a read-only web UI for Garage's buckets, behind a password and reachable only
+        from `allowFrom` (secrets/hoard-sync-s3manager-env.age holds a read-only Garage key,
+        hoard-sync-s3manager-htpasswd.age the login; the password is in 1Password)
+      '';
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 8090;
+        description = "Where the password-protected UI listens.";
+      };
+      allowFrom = lib.mkOption {
+        type = lib.types.str;
+        example = "192.168.36.0/24";
+        description = "The only network that may reach it (the home LAN).";
+      };
+    };
+
     appStoreApiKey = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -302,6 +320,65 @@ in
           }
         ) instances;
       }
+
+      ######## S3 Manager: read-only bucket browser, LAN only, behind a password ########
+      (lib.mkIf cfg.s3manager.enable {
+        age.secrets.hoard-sync-s3manager-env = secret "hoard-sync-s3manager-env";
+        age.secrets.hoard-sync-s3manager-htpasswd = secret "hoard-sync-s3manager-htpasswd" // {
+          owner = "nginx";
+        };
+
+        systemd.services.s3manager = {
+          description = "S3 Manager (read-only view of Garage)";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "garage.service" ];
+          environment = {
+            S3_1_NAME = "garage";
+            S3_1_ENDPOINT = lib.removePrefix "http://" garageS3;
+            S3_1_REGION = garageRegion;
+            S3_1_USE_SSL = "false";
+            S3_1_BUCKET_LOOKUP = "Path";
+            # Listens on all interfaces; the firewall keeps this port closed, nginx is in front.
+            PORT = "8092";
+            ALLOW_DELETE = "false";
+            TZ = "Europe/Berlin";
+          };
+          serviceConfig = {
+            ExecStart = lib.getExe (import ./s3manager.nix { pkgs = pkgsUnstable; });
+            EnvironmentFile = secretPath "hoard-sync-s3manager-env";
+            DynamicUser = true;
+            Restart = "on-failure";
+            NoNewPrivileges = true;
+            ProtectSystem = "strict";
+            ProtectHome = true;
+          };
+        };
+
+        services.nginx = {
+          enable = true;
+          virtualHosts.s3manager = {
+            listen = [ { addr = "0.0.0.0"; port = cfg.s3manager.port; } ];
+            basicAuthFile = secretPath "hoard-sync-s3manager-htpasswd";
+            locations."/" = {
+              proxyPass = "http://127.0.0.1:8092";
+              extraConfig = "client_max_body_size 0;";
+            };
+          };
+        };
+
+        networking.firewall = lib.mkMerge [
+          (lib.mkIf (!config.networking.nftables.enable) {
+            extraCommands = ''
+              iptables -A nixos-fw -p tcp -s ${cfg.s3manager.allowFrom} --dport ${toString cfg.s3manager.port} -j nixos-fw-accept
+            '';
+          })
+          (lib.mkIf config.networking.nftables.enable {
+            extraInputRules = ''
+              ip saddr ${cfg.s3manager.allowFrom} tcp dport ${toString cfg.s3manager.port} accept
+            '';
+          })
+        ];
+      })
 
       ######## TLS terminates on another host: open the instance ports to that proxy only ########
       (lib.mkIf (cfg.tls == "external") {

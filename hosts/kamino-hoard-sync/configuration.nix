@@ -43,6 +43,11 @@
     tls = "external";
     trustedProxy = "192.168.36.123";
     appStoreApiKey = true;
+    # Read-only bucket browser at http://192.168.36.210:8090 (login in 1Password: "Hoard Sync S3 Manager").
+    s3manager = {
+      enable = true;
+      allowFrom = "192.168.36.0/24";
+    };
   };
 
   services.openssh = {
