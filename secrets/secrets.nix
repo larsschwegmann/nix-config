@@ -4,8 +4,7 @@ let
   cloudgw = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAAWJuctcVfG5x2nGKs76fEuQOuyDqDAJwiQllW0eFaz root@cloudgw";
   kamino-http-ingress = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA51CR4/jH7W/MCuI0p4zYaW31tqWuvTejpX9f6ECX/8 root@kamino-http-ingress";
   kamino-hoard-sync = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKOOI1I9t8Xph4JyolwRA6wfdXesKRQaM8fLss8IHqZL root@kamino-hoard-sync";
-  # kamino-revo: add its host key once the LXC exists (docs/kamino-revo.md), e.g.
-  # kamino-revo = "ssh-ed25519 AAAA… root@kamino-revo";
+  kamino-revo = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFWgGKci5V8DR8ChaIuJBOJ1QE11jA8Hdwqf/Fu0A2mI root@kamino-revo";
   lars = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJTxrW9jRI2GrxpnAFUfOgz79+exH4zOQYV+Qw9Ge5MM lars@mandalore";
   # age can't decrypt through 1Password's SSH agent, so the Hoard Sync secrets also go to this age
   # key, kept in 1Password ("Hoard Sync age key"):
@@ -27,8 +26,7 @@ in {
   "hoard-sync-s3manager-env.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
   "hoard-sync-s3manager-htpasswd.age".publicKeys = [ lars lars-age kamino-hoard-sync ];
   # Revo (hosts/kamino-revo): read-only deploy key for the private revo-timetracking repo.
-  # Uncomment once kamino-revo's host key is above, then encrypt (docs/kamino-revo.md).
-  # "revo-deploy-key.age".publicKeys = [ lars lars-age kamino-revo ];
+  "revo-deploy-key.age".publicKeys = [ lars lars-age kamino-revo ];
   # Only for a standalone host with tls = "builtin" (ops/hoard-sync-migration.md in the private hoardapp repo).
   "hoard-sync-cloudflare-env.age".publicKeys = [ lars lars-age ];
 }
