@@ -10,8 +10,16 @@
 Order matters: CI's nightly `nix flake update` fetches the revo input, so `REVO_DEPLOY_KEY` must
 exist before this branch reaches `main`.
 
-1. **LXC.** In Proxmox, create `kamino-revo` like the other kamino hosts (NixOS LXC template,
-   privileged), static IP `192.168.36.211`, your SSH key for root.
+1. **LXC.** On the Proxmox host (root@192.168.36.254), as created on 2026-11-09:
+
+   ```bash
+   pct create 214 local:vztmpl/nixos-image-lxc-proxmox-25.05pre-git-x86_64-linux.tar.xz \
+     --hostname kamino-revo --ostype nixos --unprivileged 0 --features nesting=1 \
+     --cores 2 --memory 4096 --swap 2048 --rootfs local-zfs:24 \
+     --net0 name=eth0,bridge=vmbr0,ip=192.168.36.211/24,gw=192.168.36.1,type=veth \
+     --onboot 1 --ssh-public-keys <your key>.pub --cmode console
+   pct start 214
+   ```
 
 2. **Host key → secrets.nix.**
 
@@ -37,22 +45,31 @@ exist before this branch reaches `main`.
 
 4. **Merge and push** this branch to `main`.
 
-5. **First switch.** The deploy key is only decrypted after the first switch, so fetch the revo
-   input with your forwarded agent this once:
+5. **First switch.** The deploy key is only decrypted by agenix after the first switch, and the
+   NixOS LXC template has no git. Let the host decrypt the key with its own host key for this one
+   run (what agenix does later anyway), then delete it:
 
    ```bash
-   ssh -A root@192.168.36.211
-   ssh-keyscan github.com >> ~/.ssh/known_hosts
-   nixos-rebuild switch --flake github:larsschwegmann/nix-config#kamino-revo
+   scp secrets/revo-deploy-key.age root@192.168.36.211:
+   ssh root@192.168.36.211
+   export NIX_CONFIG="experimental-features = nix-command flakes"
+   nix run nixpkgs#age -- -d -i /etc/ssh/ssh_host_ed25519_key -o ~/revo-deploy-key ~/revo-deploy-key.age
+   chmod 600 ~/revo-deploy-key && rm ~/revo-deploy-key.age   # age writes 0644, ssh refuses that
+   printf 'Host github.com\n  IdentityFile /root/revo-deploy-key\n  IdentitiesOnly yes\n' > ~/.ssh/config
+   echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" >> ~/.ssh/known_hosts
+   nix shell nixpkgs#git nixpkgs#openssh nixpkgs#nixos-rebuild \
+     -c nixos-rebuild switch --flake github:larsschwegmann/nix-config#kamino-revo
+   rm ~/revo-deploy-key ~/.ssh/config
    runuser -u revo -- revo set-password lars
    ```
 
-   From then on `autoUpgrade` fetches with the deploy key.
+   The build takes about 5 minutes and peaks at ~2.4 GB RAM (the LXC has 4 GB + 2 GB swap). From
+   then on `autoUpgrade` fetches with `/run/agenix/revo-deploy-key`.
 
 6. **Ingress.** kamino-http-ingress picks up the route on its next auto-upgrade (04:00), or now:
    `nixos-rebuild switch --flake github:larsschwegmann/nix-config#kamino-http-ingress` on that host.
-   The ACME wildcard `*.0x4c53.net` already covers `time.0x4c53.net`. From outside, it also needs a
-   public DNS record (Cloudflare) like the other `0x4c53.net` services, unless a wildcard exists.
+   The ACME wildcard `*.0x4c53.net` already covers `time.0x4c53.net`. From outside it needs its own
+   Cloudflare record (there is no wildcard): A `91.107.225.201` (cloudgw), DNS only, like jellyfin.
 
 7. **Check.** `https://time.0x4c53.net` on the LAN and from outside. In the web app, Settings → API
    tokens → create one for the menubar app, and set the app's server URL to `https://time.0x4c53.net`.
