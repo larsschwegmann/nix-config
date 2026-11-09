@@ -14,6 +14,8 @@
 let
   # kamino-hoard-sync's static IP (Proxmox), where Traefik forwards sync.hoardapp.dev to.
   hoardSyncAddress = "192.168.36.210";
+  # kamino-revo's static IP (Proxmox), where Traefik forwards time.0x4c53.net to.
+  revoAddress = "192.168.36.211";
 in
 {
   imports = [
@@ -146,6 +148,18 @@ in
             };
           };
         };
+        # Revo time tracking on kamino-revo
+        time = {
+          rule = "Host(`time.0x4c53.net`)";
+          entryPoints = [ "websecure" ];
+          service = "revo";
+          tls = {
+            domains = {
+              main = [ "0x4c53.net" ];
+              sans = [ "*.0x4c53.net" ];
+            };
+          };
+        };
         # Hoard Sync on kamino-hoard-sync (modules/hoard-sync)
         sync = {
           rule = "Host(`sync.hoardapp.dev`)";
@@ -183,6 +197,13 @@ in
           loadBalancer.servers = [
             {
               url = "http://192.168.36.69:32400";
+            }
+          ];
+        };
+        revo = {
+          loadBalancer.servers = [
+            {
+              url = "http://${revoAddress}:3000";
             }
           ];
         };
@@ -232,6 +253,7 @@ in
         local-data = [
           "\"jellyfin.0x4c53.net. A 192.168.36.123\""
           "\"plex.0x4c53.net. A 192.168.36.123\""
+          "\"time.0x4c53.net. A 192.168.36.123\""
           "\"sync.hoardapp.dev. A 192.168.36.123\""
           "\"sync-staging.hoardapp.dev. A 192.168.36.123\""
         ];

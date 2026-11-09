@@ -18,7 +18,8 @@ modules/               # Reusable NixOS modules with custom.* option namespace
 | **mustafar** | Desktop workstation (GNOME, home-manager, 1Password, disko) | Bare metal |
 | **kamino-immich** | Immich photo service | Proxmox LXC container |
 | **kamino-prusalink** | PrusaLink 3D printer integration | Proxmox LXC container |
-| **kamino-http-ingress** | HTTP reverse proxy/ingress (Traefik, ACME for 0x4c53.net and hoardapp.dev, Unbound split DNS) | Proxmox LXC container |
+| **kamino-http-ingress** | HTTP reverse proxy/ingress (Traefik, ACME for 0x4c53.net and hoardapp.dev, Unbound split DNS; routes jellyfin, plex, time, sync) | Proxmox LXC container |
+| **kamino-revo** | Revo time tracking: `time.0x4c53.net` (private `revo` input, Postgres, nightly pg_dump). Setup: `docs/kamino-revo.md` | Proxmox LXC container |
 | **kamino-hoard-sync** | Hoard Sync: `sync.hoardapp.dev` + `sync-staging.hoardapp.dev`, Garage, Postgres, Litestream | Proxmox LXC container |
 
 The `kamino-*` hosts are Proxmox LXC containers (privileged, `sandbox = false`). `mustafar` is the only desktop host and uses home-manager for user-level config.
@@ -60,4 +61,5 @@ nix flake update
 - `disko` — declarative disk partitioning (used by mustafar)
 - `agenix` — secrets as `secrets/*.age`, recipients in `secrets/secrets.nix`; encrypt with `scripts/encrypt-secret.sh` (brew `age`). This repo is public: never commit plaintext secrets
 - `hoard` — the private `larsschwegmann/hoardapp` repo (git+ssh). Only kamino-hoard-sync uses it; it fetches with the agenix deploy key, CI with the `HOARDAPP_DEPLOY_KEY` Actions secret
+- `revo` — the private `larsschwegmann/revo-timetracking` repo (git+ssh). Only kamino-revo uses it (`services.revo-timetracking`); the host fetches it with `secrets/revo-deploy-key.age`, CI with the `REVO_DEPLOY_KEY` Actions secret
 - Binary caches: cachix, nixpkgs, nix-community

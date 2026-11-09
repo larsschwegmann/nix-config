@@ -43,6 +43,13 @@
       url = "git+ssh://git@github.com/larsschwegmann/hoardapp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Private repo: only kamino-revo uses it (fetched lazily like hoard). The host fetches it with
+    # the revo deploy key (secrets/revo-deploy-key.age), CI with the REVO_DEPLOY_KEY Actions secret.
+    revo = {
+      url = "git+ssh://git@github.com/larsschwegmann/revo-timetracking";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     # Add hosts to configure here. Its nixosConfigurations.<hostname> as defined in configuration.nix
@@ -93,6 +100,15 @@
         ./hosts/kamino-hoard-sync/configuration.nix
         inputs.agenix.nixosModules.default
         inputs.hoard.nixosModules.hoard-sync
+      ];
+    };
+    nixosConfigurations.kamino-revo = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {inherit inputs;};
+      modules = [
+        ./hosts/kamino-revo/configuration.nix
+        inputs.agenix.nixosModules.default
+        inputs.revo.nixosModules.default
       ];
     };
     nixosConfigurations.inference-minion = nixpkgs.lib.nixosSystem {
