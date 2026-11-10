@@ -80,3 +80,6 @@ exist before this branch reaches `main`.
 - Backups: `ls /var/backup/revo`; restore with `runuser -u revo -- pg_restore --clean -d revo <file>`.
   They stay on this LXC: include it in the Proxmox backups if you want an off-host copy.
 - Updating revo: push to revo-timetracking's `main`; the nightly lock update and auto-upgrade deploy it.
+  To deploy right away: update the `revo` entry in `flake.lock` (`nix flake update revo`), push, then on the host
+  `nixos-rebuild switch --refresh --flake github:larsschwegmann/nix-config#kamino-revo`. Without `--refresh`, Nix
+  reuses its cached `github:` ref for up to an hour and quietly rebuilds the previous commit.
