@@ -247,11 +247,11 @@
         "uv2nix": "uv2nix_2"
       },
       "locked": {
-        "lastModified": 1794424438,
-        "narHash": "sha256-qVxaNmaMyMSzKZg5TJZHNFpiGIM1vvEUa0jDehLpUnE=",
+        "lastModified": 1794431310,
+        "narHash": "sha256-kQ51Au/9uYpVHG4Sn4MfeTHkkXOKLvuafJP3/oOi3k8=",
         "ref": "refs/heads/main",
-        "rev": "ab48b2c2006935796cb787451a601016cdc3e925",
-        "revCount": 22,
+        "rev": "3e4e14ea1c982c7eafa213b548b2dd3dd07a87cd",
+        "revCount": 23,
         "type": "git",
         "url": "ssh://git@github.com/larsschwegmann/revo-timetracking"
       },
